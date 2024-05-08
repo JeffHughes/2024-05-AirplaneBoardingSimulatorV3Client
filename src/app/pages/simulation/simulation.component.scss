@@ -1,0 +1,126 @@
+.controls {
+  position: absolute;
+  bottom: 10px;
+  display: flex;
+  width: 99vw;
+}
+
+ 
+
+.slider {
+  flex: 1;
+  width: 95%;
+}
+
+
+.time-display {
+  font-size: 16px;
+  color: black;
+}
+
+button {
+  margin-right: 5px;
+}
+
+.g2w-circle-container {
+  aspect-ratio: 1;
+  height: 10vh;
+
+  transform: rotate(90deg) rotateY(180deg) translateY(30%);
+}
+
+.w2c-circle-container {
+  aspect-ratio: 1;
+  height: 10vh;
+
+  transform: rotate(270deg) translateY(30%) translateX(110%); //rotateY(180deg);
+}
+
+svg {
+  overflow: visible;
+}
+
+.messages {
+  height: 20px;
+}
+
+.grid-container {
+  display: grid;
+  grid-template-columns: 60px auto 60px; /* Adding an extra column for g2w */
+  grid-template-rows: 1fr 1fr 2fr; /* Adjusted to include w2c at the bottom */
+  //gap: 10px; /* Adjust the gap between the cells if necessary */
+
+  width: 99vw;
+  height: calc(99vh - 60px);
+  grid-template-areas:
+    ". gate g2w"
+    "w2c walkway g2w"
+    "w2c cabin .";
+}
+
+.gate {
+  grid-area: gate;
+}
+.walkway {
+  grid-area: walkway;
+   position:relative; // for abs sign div 
+
+}
+.cabin {
+  grid-area: cabin;
+    position:relative; // for abs sign div 
+
+}
+.w2c {
+  grid-area: w2c;
+     background-color : #eee;
+}
+.g2w {
+  grid-area: g2w;
+   background-color : #eee;
+}
+
+.gate,
+.walkway,
+.cabin,
+.w2c,
+.g2w {
+  // border: 1px solid black; /* Borders to distinguish the areas */
+
+  display: flex; 
+  align-items: center;
+}
+
+.gate {
+  display: flex;
+}
+.waiting {
+  height: 100%;
+  aspect-ratio: 1;
+
+  background-color: gray;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.lanes {
+  flex: 10;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  position:relative; // for abs sign div 
+}
+
+
+.lane {
+  height: 100%;
+  width: 100%;
+}
+
+.pass-check {
+  height: 100%;
+  width: 10px;
+  background-color: black;
+}

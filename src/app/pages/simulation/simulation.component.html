@@ -1,0 +1,375 @@
+<div class="messages">Messages: Now Boarding 1</div>
+
+<div class="grid-container">
+  <div class="gate">
+    <div class="waiting">seating area</div>
+    <div class="lanes">
+      <div style="position: absolute; padding: 5px">Gate</div>
+      <div style="display: flex; flex-direction: column; height: 100%">
+        @for (lane of [1,2]; track $index) {
+        <div style="flex: 1; display: flex">
+          @for (bin of config.bins().reverse(); track $index) {
+          <div
+            [id]="'gate-' + lane + '-' + bin"
+            style="
+              height: 100%;
+              aspect-ratio: 1;
+              border: 1px solid black;
+              user-select: none;
+
+              display: flex;
+              justify-content: center;
+              align-items: center;
+            "
+            [ngStyle]="{
+              width:
+                'calc(' +
+                100 / config.bins().length +
+                '% - ' +
+                25 / config.bins().length +
+                'px)'
+            }"
+          >
+            <!-- {{ lane == 1 ? "Left" : "Right" }}- -->
+
+            {{ bin }} >
+          </div>
+          }
+        </div>
+        }
+      </div>
+    </div>
+    <div class="pass-check">x</div>
+  </div>
+  <div class="walkway">
+    <div style="position: absolute; padding: 5px; top: 0px">Walkway</div>
+    @for (spot of config.walkway().reverse(); track $index) {
+    <div
+      [id]="'walkway-' + spot"
+      style="
+        flex: 1;
+        display: flex;
+        aspect-ratio: 1;
+
+        align-items: center;
+        justify-content: center;
+
+        border: 1px solid black;
+        user-select: none;
+      "
+    >
+      &lt; {{ spot }}
+    </div>
+    }
+  </div>
+  <div class="cabin">
+    <div style="position: absolute; padding: 5px; top: -13px">Cabin</div>
+    <div
+      style="display: flex; flex-direction: column; height: 100%; width: 100%"
+    >
+      <div style="text-align: center">
+        <table style="width: 100%">
+          <tr>
+            @for (row of config.rows( ) ; track $index) {
+            <td style="text-align: right">
+              <div [id]="'row-' + row">{{ row }}</div>
+            </td>
+            }
+          </tr>
+          @for (letter of config.seatsABC(); track $index) {
+          <tr>
+            @for (row of config.rows( ) ; track $index) {
+            <td [ngStyle]="config.seatStyle()">
+              <div
+                style="
+                  border: 1px solid black;
+                  user-select: none;
+                  text-align: left;
+                  vertical-align: top;
+                  height: 25px;
+                "
+                [id]="'seat-' + row + letter"
+              >
+                {{ row }}{{ letter }}
+              </div>
+            </td>
+            }
+            <td></td>
+          </tr>
+          }
+        </table>
+      </div>
+
+      <div style="display: flex">
+        @for (spot of config.bins().reverse(); track $index) {
+        <div
+          [id]="'cabin-bin-aft-' + spot"
+          style="
+            flex: 1;
+            display: flex;
+            height: 30px;
+
+            align-items: center;
+            justify-content: center;
+
+            border: 1px solid black;
+            user-select: none;
+          "
+        >
+          {{ spot }}
+        </div>
+        }
+      </div>
+
+      <div style="display: flex">
+        @for (spot of config.bins().reverse() ; track $index) {
+        <div
+          [id]="'cabin-' + spot"
+          style="
+            flex: 1;
+            display: flex;
+            height: 80px;
+
+            align-items: center;
+            justify-content: center;
+
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            user-select: none;
+          "
+        >
+          {{ spot }} >
+        </div>
+        }
+      </div>
+
+      <div style="display: flex">
+        @for (spot of config.bins().reverse(); track $index) {
+        <div
+          [id]="'cabin-bin-starboard-' + spot"
+          style="
+            flex: 1;
+            display: flex;
+            height: 30px;
+
+            align-items: center;
+            justify-content: center;
+
+            border: 1px solid black;
+            user-select: none;
+          "
+        >
+          {{ spot }}
+        </div>
+        }
+      </div>
+
+      <div style="text-align: center">
+        <table style="width: 100%">
+          @for (letter of config.seatsDEF(); track $index) {
+          <tr>
+            @for (row of config.rows( ) ; track $index) {
+            <td [ngStyle]="config.seatStyle()">
+              <div
+                style="
+                  border: 1px solid black;
+                  user-select: none;
+                  text-align: left;
+                  vertical-align: top;
+                  height: 25px;
+                "
+                [id]="'seat-' + row + letter"
+              >
+                {{ row }}{{ letter }}
+              </div>
+            </td>
+            }
+            <td></td>
+          </tr>
+          }
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="g2w">
+    <!-- <div class="g2w-circle-container">
+      <svg viewBox="0 0 100 50">
+        <path
+          d="M 0,50 A 50,50 0 0 1 100,50"
+          fill="transparent"
+          stroke="gray"
+          stroke-width="6"
+          stroke-dasharray="5,5"
+          id="half-circle"
+        ></path>
+      </svg>
+    </div> -->
+  </div>
+  <div class="w2c">
+    <!-- <div class="w2c-circle-container">
+      <svg viewBox="0 0 100 50">
+        <path
+          d="M 0,50 A 50,50 0 0 1 100,50"
+          fill="transparent"
+          stroke="lightblue"
+          stroke-width="6"
+          stroke-dasharray="5,5"
+          id="half-circle"
+        ></path>
+      </svg>
+    </div> -->
+  </div>
+</div>
+
+<div class="controls" style="padding-left: 15px">
+  <div class="playPause" style="width: 50px">
+    <button
+      [ngStyle]="{
+        'background-color': 1 ? 'lightblue' : 'white'
+      }"
+      (click)="setSpeed(0)"
+    >
+      Play
+    </button>
+    <!-- <button
+      [ngStyle]="{
+        'background-color': 1 ? 'lightblue' : 'white'
+      }"
+      (click)="setSpeed(0)"
+    >
+      Pause
+    </button> -->
+  </div>
+  <div style="width: 100%; text-align: center">
+    <input
+      type="range"
+      min="0"
+      max="100"
+      [(ngModel)]="currentFrame"
+      (input)="updateTime(currentFrame())"
+      class="slider"
+    />
+  </div>
+
+  <div class="speed-controls" style="width: 300px">
+    <button
+      *ngFor="let speed of speeds"
+      [ngStyle]="{
+        'background-color': speed === currentSpeed() ? 'lightblue' : 'white'
+      }"
+      (click)="setSpeed(speed)"
+    >
+      {{ speed }}x
+    </button>
+  </div>
+</div>
+
+<div class="time-display" style="position: absolute; top: 5px; right: 5px">
+  {{ currentTime() }}s
+</div>
+
+@for (passenger of config.passengers() ; track $index) {
+<div
+  [id]="'passenger-' + passenger.id"
+  style="
+    width: 20px;
+    height: 15px;
+
+    top: 50px;
+    left: 10px;
+
+    position: absolute;
+
+    background-color: rgba(233, 233, 233, 1);
+    border: 1px solid black;
+
+    text-align: center;
+    vertical-align: center;
+    border-radius: 100%;
+
+    padding: 5px;
+    padding-top: 6px;
+
+    font-size: 12px;
+  "
+>
+  {{ passenger.id }}
+</div>
+} @for (family of config.families() ; track $index) {
+<div
+  [id]="'family-' + family.id"
+  style="
+    top: 90px;
+    left: 10px;
+
+    position: absolute;
+
+    border: 1px solid black;
+
+    text-align: center;
+    vertical-align: center;
+    border-radius: 5px;
+
+    padding: 5px;
+    padding-top: 6px;
+
+    font-size: 12px;
+
+    display: flex;
+    flex-direction: column;
+
+    flex-wrap: wrap;
+
+    max-height: 100px;
+  "
+>
+  @for (passenger of config.familyPassengers(5) ; track $index) {
+  <div
+    [id]="'passenger-' + passenger.id"
+    style="
+      width: 20px;
+      height: 15px;
+
+      background-color: rgba(233, 233, 233, 1);
+      border: 1px solid black;
+
+      text-align: center;
+      vertical-align: center;
+      border-radius: 100%;
+
+      padding: 5px;
+      padding-top: 6px;
+
+      font-size: 12px;
+    "
+  >
+    {{ passenger.id }}
+  </div>
+
+  }
+
+  <div
+    [id]="'passenger-2'"
+    style="
+      width: 20px;
+      height: 15px;
+
+      background-color: rgba(233, 233, 233, 1);
+      border: 1px solid black;
+
+      text-align: center;
+      vertical-align: center;
+      border-radius: 100%;
+
+      padding: 5px;
+      padding-top: 6px;
+
+      font-size: 12px;
+    "
+  >
+    6
+  </div>
+
+  {{ family.id }}
+</div>
+
+}
