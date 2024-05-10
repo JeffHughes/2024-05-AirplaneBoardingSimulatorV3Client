@@ -9,17 +9,19 @@ export class ConfigService {
   binCount = signal(12);
   slotsPerBin = signal(6);
   slotsPerParallelBinsCount = signal(this.slotsPerBin() * 2);
-  rowCount = signal(24);
-  seatCount = signal(6);
+  passengerRowCount = signal(24);
+  seatsPerPassengerRow = signal(6);
   walkwaySpots = signal(15);
   passengerCount = signal(143);
+
+  families = signal<any>([]);
 
   bins() {
     return Array.from({ length: this.binCount() }, (v, k) => k + 1);
   }
 
   rows() {
-    return Array.from({ length: this.rowCount() }, (v, k) => k + 1);
+    return Array.from({ length: this.passengerRowCount() }, (v, k) => k + 1);
   }
 
   seatsABC() {
@@ -31,7 +33,7 @@ export class ConfigService {
   }
 
   seatStyle() {
-    return { width: "calc(100% / " + this.rowCount() + ")" };
+    return { width: "calc(100% / " + this.passengerRowCount() + ")" };
   }
 
   walkway() {
@@ -52,10 +54,6 @@ export class ConfigService {
   }
 
 
-  families() {
-    return Array.from({ length: 1  }, (v, i) => ({
-      id: i + 1,
-    }));
-  }
+  
 
 }

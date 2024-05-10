@@ -1,4 +1,15 @@
-<div class="messages">Messages: Now Boarding 1</div>
+<div class="messages">
+  Current Boarding Group:
+  {{ boardingLetter(timelineService.currentBoardingGroup()) }},
+  {{ timelineService.message() }}
+</div>
+
+<div class="time-display" style="position: absolute; top: 5px; right: 5px">
+  <!-- {{ timelineService.sliderValueAnalog }}
+  {{ timelineService.sliderValue() }}% -->
+  {{ getSecs(timelineService.currentTime()) }}m
+  {{ timelineService.currentTime() % 60 }}s
+</div>
 
 <div class="grid-container">
   <div class="gate">
@@ -10,7 +21,7 @@
         <div style="flex: 1; display: flex">
           @for (bin of config.bins().reverse(); track $index) {
           <div
-            [id]="'gate-' + lane + '-' + bin"
+            [id]="'GateLane-' + lane + '-' + bin"
             style="
               height: 100%;
               aspect-ratio: 1;
@@ -45,7 +56,7 @@
     <div style="position: absolute; padding: 5px; top: 0px">Walkway</div>
     @for (spot of config.walkway().reverse(); track $index) {
     <div
-      [id]="'walkway-' + spot"
+      [id]="'Walkway-' + spot"
       style="
         flex: 1;
         display: flex;
@@ -124,7 +135,7 @@
       <div style="display: flex">
         @for (spot of config.bins().reverse() ; track $index) {
         <div
-          [id]="'cabin-' + spot"
+          [id]="'Cabin-' + spot"
           style="
             flex: 1;
             display: flex;
@@ -220,7 +231,8 @@
   </div>
 </div>
 
-<div class="controls" style="padding-left: 15px">
+<!-- remove display none when not using devTools -->
+<div class="controls" style="padding-left: 15px; display: none">
   <div class="playPause" style="width: 50px">
     <button
       [ngStyle]="{
@@ -244,8 +256,8 @@
       type="range"
       min="0"
       max="100"
-      [(ngModel)]="currentFrame"
-      (input)="updateTime(currentFrame())"
+      [(ngModel)]="timelineService.sliderValueAnalog"
+      (input)="updateTime($event)"
       class="slider"
     />
   </div>
@@ -263,23 +275,21 @@
   </div>
 </div>
 
-<div class="time-display" style="position: absolute; top: 5px; right: 5px">
-  {{ currentTime() }}s
-</div>
-
 @for (passenger of config.passengers() ; track $index) {
 <div
-  [id]="'passenger-' + passenger.id"
+  [id]="'passenger-moving-independently-' + passenger.id"
   style="
     width: 20px;
     height: 15px;
 
-    top: 50px;
-    left: 10px;
+    top: 500px;
+    left: 100px;
 
     position: absolute;
 
-    background-color: rgba(233, 233, 233, 1);
+    opacity: 0;
+
+    background-color: rgb(39, 185, 26);
     border: 1px solid black;
 
     text-align: center;
@@ -294,22 +304,25 @@
 >
   {{ passenger.id }}
 </div>
+
 } @for (family of config.families() ; track $index) {
 <div
-  [id]="'family-' + family.id"
+  [id]="'family-' + family.familyID"
   style="
-    top: 90px;
-    left: 10px;
+    top: 50px;
+    left: 80px;
 
     position: absolute;
 
-    border: 1px solid black;
+    opacity: 0;
+
+    border: 1px solid rgba(0, 0, 0, 0.377);
 
     text-align: center;
     vertical-align: center;
     border-radius: 5px;
 
-    padding: 5px;
+    padding: 1px;
     padding-top: 6px;
 
     font-size: 12px;
@@ -322,9 +335,9 @@
     max-height: 100px;
   "
 >
-  @for (passenger of config.familyPassengers(5) ; track $index) {
+  @for (passenger of family.familyMembers ; track $index) {
   <div
-    [id]="'passenger-' + passenger.id"
+    [id]="'Passenger-moving-w-family-' + passenger.passengerID"
     style="
       width: 20px;
       height: 15px;
@@ -340,36 +353,16 @@
       padding-top: 6px;
 
       font-size: 12px;
+
+      will-change: left, top;
     "
   >
-    {{ passenger.id }}
+    {{ passenger.passengerID }}
   </div>
 
   }
 
-  <div
-    [id]="'passenger-2'"
-    style="
-      width: 20px;
-      height: 15px;
-
-      background-color: rgba(233, 233, 233, 1);
-      border: 1px solid black;
-
-      text-align: center;
-      vertical-align: center;
-      border-radius: 100%;
-
-      padding: 5px;
-      padding-top: 6px;
-
-      font-size: 12px;
-    "
-  >
-    6
-  </div>
-
-  {{ family.id }}
+  {{ boardingLetter(family.boardingGroup) }}{{ family.boardingOrder }}
 </div>
 
 }
