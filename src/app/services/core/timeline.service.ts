@@ -39,7 +39,8 @@ export class TimelineService {
   async createTimelineFromJson() {
     const response = await fetch(
       //'../../../assets/test-delme/frames-05-06-4PM.json'
-      'http://localhost:7048/api/Function1'
+      // 'http://localhost:7048/api/Function1'
+      'https://202405-boardingsimulationv3api.azurewebsites.net/api/Function1'
     );
     const calculations = await response.json();
 
@@ -174,7 +175,7 @@ export class TimelineService {
             borderColor: 'transparent',
             color: 'transparent',
             duration: 0.5,
-            delay: 1,
+            //delay: 1,
           },
           '<'
         );
@@ -213,44 +214,43 @@ export class TimelineService {
                 '<'
               );
 
-              // const noFam = `#passenger-moving-independently-${passengerID}`;
-              // let overheadBin =
-              //   family.overheadBin > 0 ? family.overheadBin : 12;
+              const noFam = `#passenger-moving-independently-${passengerID}`;
+              let overheadBin =
+                family.overheadBin > 0 ? family.overheadBin : 12;
 
-              // // reset independent passenger to middle of overhead cabin location
-              // let xy: any = this.getDeltaXY(noFam, `#Cabin-${overheadBin}`);
-              // xy.opacity = 1;
-              // xy.duration = 0.0001;
-              // xy.delay = 0.1;
+              // reset independent passenger to middle of overhead cabin location
+              let xy: any = this.getDeltaXY(noFam, `#Cabin-${overheadBin}`);
+              xy.opacity = 0.25;
+              xy.duration = 0.0001;
+              xy.delay = 0.1;
 
-              // frameTimeline.to(noFam, xy, '<');
+              frameTimeline.to(noFam, xy, '<');
 
-              // // first, move to row of seat
-              // let rowDivID = `#row-${passenger.row}`;
-              // let rowX = this.getDeltaXY(noFam, rowDivID);
-              // frameTimeline.to(
-              //   noFam,
-              //   {
-              //     x: rowX.x,
-              //     delay: 0.2,
-              //     duration: rowX.x / 80,
-              //   },
+              // first, move to row of seat
+              let rowDivID = `#row-${passenger.row}`;
+              let rowX = this.getDeltaXY(noFam, rowDivID);
+              frameTimeline.to(noFam, {
+                x: rowX.x,
+                opacity: 0.25,
+                delay: 0.2,
+                duration: rowX.x / (80 * this.timeline.timeScale()),
+              });
 
-              // );
+              // then move to seat
+              let seatDivID = `#seat-${passenger.row}${passenger.seatLetter}`;
+              let { x, y } = this.getDeltaXY(noFam, seatDivID);
+              frameTimeline.to(noFam, {
+                x,
+                y,
+                opacity: 0.25,
+                delay: 0.2,
+                duration: 0.4,
+              });
 
-              // // then move to seat
-              // let seatDivID = `#seat-${passenger.row}${passenger.seatLetter}`;
-              // let { x, y } = this.getDeltaXY(noFam, seatDivID);
-              // frameTimeline.to(
-              //   noFam,
-              //   {
-              //     x,
-              //     y,
-              //     delay: 0.2,
-              //     duration: 0.5,
-              //   },
-
-              // );
+              frameTimeline.to(noFam, {
+                opacity: 1,
+                duration: 0.1,
+              });
 
               seatFound = true;
             } else {
@@ -262,6 +262,45 @@ export class TimelineService {
         });
       } catch (error) {}
     }
+
+    if (frame.bottleneckStart) {
+      frame.bottleneckStart.forEach((divID: any) => {
+        console.log(`Bottleneck start ${divID}`);
+        frameTimeline
+          .to(
+            `#${divID}`,
+            {
+              opacity: 1,
+              duration: 0.5,
+            },
+            '<'
+          )
+          .to(
+            `#${divID}`,
+            {
+              opacity: 0.2,
+              duration: 0.5,
+              delay: 3, //THIS SI A HACK NEEDS DEBUGGING !!!!!
+            },
+            '<'
+          );
+      });
+    }
+
+    if (frame.bottleneckEnd) {
+      frame.bottleneckEnd.forEach((divID: any) => {
+        console.log(`Bottleneck end ${divID}`);
+        frameTimeline.to(
+          `#${divID}`,
+          {
+            opacity: 0.2,
+            duration: 0.5,
+          },
+          '<'
+        );
+      });
+    }
+
     // if (frame.message)
     //     console.log(`Frame ${frame.frameNumber}: ${frame.message}`);
     // if (frame.frameNumber % 100 == 0)
@@ -290,6 +329,8 @@ export class TimelineService {
     }
 
     return { undefined };
+
+    //TODO: figure out best find method that works everywhere
 
     // const passenger = this.config
     //   .families()

@@ -69,6 +69,17 @@ export class SimulationComponent implements OnInit {
     return this.getStyle(13 - Math.ceil(row / 2), alpha);
   }
 
+  rowPassengerStyle(passengerID: number, alpha = 0.4) {
+    try {
+      let { passenger, family } =
+        this.timelineService.getPassenger(passengerID);
+      return this.rowStyle(passenger.row, alpha);
+    } catch (error) {
+      console.log('Error: ', error);
+      return this.rowStyle(1, alpha);
+    }
+  }
+
   getColor(index: number, alpha = 0.4): any {
     const colors = [
       `rgba(255, 215, 0, ${alpha})`, // Gold
