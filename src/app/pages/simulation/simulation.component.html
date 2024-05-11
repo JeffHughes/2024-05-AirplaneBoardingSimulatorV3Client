@@ -32,14 +32,7 @@
               justify-content: center;
               align-items: center;
             "
-            [ngStyle]="{
-              width:
-                'calc(' +
-                100 / config.bins().length +
-                '% - ' +
-                25 / config.bins().length +
-                'px)'
-            }"
+            [ngStyle]="gateLaneStyle(bin, 0.2)"
           >
             <!-- {{ lane == 1 ? "Left" : "Right" }}- -->
 
@@ -82,7 +75,7 @@
         <table style="width: 100%">
           <tr>
             @for (row of config.rows( ) ; track $index) {
-            <td style="text-align: right">
+            <td style="text-align: right" [ngStyle]="rowStyle(row, 0.1)">
               <div [id]="'row-' + row">{{ row }}</div>
             </td>
             }
@@ -100,6 +93,7 @@
                   height: 25px;
                 "
                 [id]="'seat-' + row + letter"
+                [ngStyle]="rowStyle(row, 0.1)"
               >
                 {{ row }}{{ letter }}
               </div>
@@ -112,9 +106,9 @@
       </div>
 
       <div style="display: flex">
-        @for (spot of config.bins().reverse(); track $index) {
+        @for (bin of config.bins().reverse(); track $index) {
         <div
-          [id]="'cabin-bin-aft-' + spot"
+          [id]="'cabin-bin-aft-' + bin"
           style="
             flex: 1;
             display: flex;
@@ -126,16 +120,17 @@
             border: 1px solid black;
             user-select: none;
           "
+          [ngStyle]="getStyle(bin, 0.4)"
         >
-          {{ spot }}
+          {{ bin }}
         </div>
         }
       </div>
 
       <div style="display: flex">
-        @for (spot of config.bins().reverse() ; track $index) {
+        @for (bin of config.bins().reverse() ; track $index) {
         <div
-          [id]="'Cabin-' + spot"
+          [id]="'Cabin-' + bin"
           style="
             flex: 1;
             display: flex;
@@ -147,16 +142,17 @@
             border: 1px solid rgba(0, 0, 0, 0.1);
             user-select: none;
           "
+          [ngStyle]="getStyle(bin, 0.1)"
         >
-          {{ spot }} >
+          {{ bin }} >
         </div>
         }
       </div>
 
       <div style="display: flex">
-        @for (spot of config.bins().reverse(); track $index) {
+        @for (bin of config.bins().reverse(); track $index) {
         <div
-          [id]="'cabin-bin-starboard-' + spot"
+          [id]="'cabin-bin-starboard-' + bin"
           style="
             flex: 1;
             display: flex;
@@ -168,8 +164,9 @@
             border: 1px solid black;
             user-select: none;
           "
+                   [ngStyle]="getStyle(bin, 0.4)"
         >
-          {{ spot }}
+          {{ bin }}
         </div>
         }
       </div>
@@ -188,6 +185,7 @@
                   vertical-align: top;
                   height: 25px;
                 "
+                         [ngStyle]="rowStyle(row, 0.1)"
                 [id]="'seat-' + row + letter"
               >
                 {{ row }}{{ letter }}
@@ -214,20 +212,49 @@
         ></path>
       </svg>
     </div> -->
+
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      xml:space="preserve"
+      width="100%"
+      height="100%"
+      version="1.1"
+      viewBox="0 0 900.28 4860.28"
+    >
+      <g>
+        <path
+          id="motionPath1"
+          class="fil0 str0"
+          d="M23.47 696.81c289.54,83.67 579.06,167.33 719.28,691.09 140.21,523.76 131.11,1487.62 -9.11,2001.34 -140.21,513.72 -411.54,577.31 -682.86,640.9"
+        />
+        <path
+          id="motionPath2"
+          class="fil0 str0"
+          d="M56.81 1625.38c225.98,59.61 451.95,119.22 561.39,492.41 109.43,373.18 102.33,1059.93 -7.11,1425.95 -109.44,366.02 -321.2,411.33 -532.97,456.64"
+        />
+      </g>
+    </svg>
   </div>
   <div class="w2c">
-    <!-- <div class="w2c-circle-container">
-      <svg viewBox="0 0 100 50">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      xml:space="preserve"
+      width="100%"
+      height="100%"
+      version="1.1"
+      viewBox="0 0 900.28 6356.95"
+    >
+      <g>
         <path
-          d="M 0,50 A 50,50 0 0 1 100,50"
+          id="motionPath3"
           fill="transparent"
           stroke="lightblue"
           stroke-width="6"
           stroke-dasharray="5,5"
-          id="half-circle"
-        ></path>
-      </svg>
-    </div> -->
+          d="M876.81 380.14c-289.54,102.07 -579.06,204.15 -719.28,843.14 -140.21,638.99 -131.11,1814.89 9.11,2441.64 140.21,626.74 411.54,704.32 682.86,781.89"
+        />
+      </g>
+    </svg>
   </div>
 </div>
 
@@ -356,6 +383,7 @@
 
       will-change: left, top;
     "
+    [ngStyle]="getStyle(family.boardingOrder)"
   >
     {{ passenger.passengerID }}
   </div>

@@ -1,8 +1,12 @@
 import { NgZone, Injectable, inject, signal } from '@angular/core';
+
+import { ConfigService } from './config.service';
+
 import { gsap } from 'gsap';
 import { GSDevTools } from 'gsap/GSDevTools';
-import { ConfigService } from './config.service';
+import { MotionPathPlugin } from 'gsap/MotionPathPlugin';
 gsap.registerPlugin(GSDevTools);
+gsap.registerPlugin(MotionPathPlugin);
 
 @Injectable({
   providedIn: 'root',
@@ -35,7 +39,7 @@ export class TimelineService {
   async createTimelineFromJson() {
     const response = await fetch(
       //'../../../assets/test-delme/frames-05-06-4PM.json'
-       'http://localhost:7048/api/Function1'
+      'http://localhost:7048/api/Function1'
     );
     const calculations = await response.json();
 
@@ -88,7 +92,7 @@ export class TimelineService {
   // Helper function to extract and animate movements
 
   timerInterval: any;
-
+  previouslySeatedIDs: any = []; // for debug only
   animateMovements(frame: any) {
     let secsAsInt = Math.ceil(frame.timeSeconds - 0.1);
 
@@ -98,6 +102,7 @@ export class TimelineService {
         if (frame.message) this.message.set(frame.message);
         if (frame.currentBoardingGroup != this.currentBoardingGroup()) {
           this.currentBoardingGroup.set(frame.currentBoardingGroup);
+          //TODO: Animate boarding group change
         }
       });
     });
@@ -109,20 +114,84 @@ export class TimelineService {
 
         const source = `#family-${familyID}`;
 
-        let { x, y } = this.getDeltaXY(`#family-${familyID}`, `#${locationID}`);
+        //get lane for boarding group for family
+        const family = this.config
+          .families()
+          .find((f: any) => f.familyID == familyID);
 
-        // Animate the source to move to the target
-        this.timeline.to(
-          source,
-          { x, y, opacity: 1, delay: 0.001 * staggerDelay++, duration: 1 },
-          '<'
-        );
+        let lane = family.boardingGroup % 2 == 0 ? 2 : 1;
+
+        if (locationID == 'Walkway-1') {
+          this.timeline.to(
+            source,
+            {
+              motionPath: {
+                path: '#motionPath' + lane,
+                align: '#motionPath' + lane,
+                // autoRotate: true,
+                alignOrigin: [0.5, 0.5],
+              },
+              duration: 1,
+            },
+            '<'
+          );
+        } else if (locationID == 'Cabin-12') {
+          this.timeline.to(
+            source,
+            {
+              motionPath: {
+                path: '#motionPath3',
+                align: '#motionPath3',
+                // autoRotate: true,
+                alignOrigin: [0.5, 0.5],
+              },
+              duration: 1,
+            },
+            '<'
+          );
+        } else {
+          let { x, y } = this.getDeltaXY(
+            `#family-${familyID}`,
+            `#${locationID}`
+          );
+
+          // Animate the source to move to the target
+          this.timeline.to(
+            source,
+            { x, y, opacity: 1, delay: 0.001 * staggerDelay++, duration: 1 },
+            '<'
+          );
+        }
       }
     );
+
+    if (frame.familiesAreSeated) {
+      frame.familiesAreSeated.forEach((familyID: any) => {
+        if (this.isolateFamily && +familyID != this.isolateFamily) return;
+        frameTimeline.to(
+          `#family-${familyID}`,
+          {
+            borderColor: 'transparent',
+            color: 'transparent',
+            duration: 0.5,
+            delay: 1,
+          },
+          '<'
+        );
+      });
+    }
 
     if (frame.passengerIDsToSeat) {
       try {
         frame.passengerIDsToSeat.forEach((passengerID: any) => {
+          if (this.previouslySeatedIDs.includes(passengerID)) {
+            console.log('passenger already seated ' + passengerID);
+            debugger;
+            return;
+          }
+
+          this.previouslySeatedIDs.push(passengerID);
+
           const { family, passenger } = this.getPassenger(passengerID);
 
           if (this.isolateFamily && family.familyID != this.isolateFamily)
@@ -144,46 +213,44 @@ export class TimelineService {
                 '<'
               );
 
-              const noFam = `#passenger-moving-independently-${passengerID}`;
-              let overheadBin =
-                family.overheadBin > 0 ? family.overheadBin : 12;
+              // const noFam = `#passenger-moving-independently-${passengerID}`;
+              // let overheadBin =
+              //   family.overheadBin > 0 ? family.overheadBin : 12;
 
-              // reset independent passenger to middle of overhead cabin location
-              let xy: any = this.getDeltaXY(noFam, `#Cabin-${overheadBin}`);
-              xy.opacity = 1; //restore
-              xy.duration = 0.0001;
+              // // reset independent passenger to middle of overhead cabin location
+              // let xy: any = this.getDeltaXY(noFam, `#Cabin-${overheadBin}`);
+              // xy.opacity = 1;
+              // xy.duration = 0.0001;
+              // xy.delay = 0.1;
 
-              frameTimeline.to(noFam, xy);
+              // frameTimeline.to(noFam, xy, '<');
 
-              // show
-              //frameTimeline.set(noFam, { opacity: 1, delay: 0.1 });
+              // // first, move to row of seat
+              // let rowDivID = `#row-${passenger.row}`;
+              // let rowX = this.getDeltaXY(noFam, rowDivID);
+              // frameTimeline.to(
+              //   noFam,
+              //   {
+              //     x: rowX.x,
+              //     delay: 0.2,
+              //     duration: rowX.x / 80,
+              //   },
 
-              // first, move to row of seat
-              let rowDivID = `#row-${passenger.row}`;
-              let rowX = this.getDeltaXY(noFam, rowDivID);
-              frameTimeline.to(
-                noFam,
-                {
-                  x: rowX.x,
-                  delay: 0.2,
-                  duration: 0.5,
-                },
-                '<'
-              );
+              // );
 
-              // then move to seat
-              let seatDivID = `#seat-${passenger.row}${passenger.seatLetter}`;
-              let { x, y } = this.getDeltaXY(noFam, seatDivID);
-              frameTimeline.to(
-                noFam,
-                {
-                  x,
-                  y,
-                  delay: 0.2,
-                  duration: 0.5,
-                },
-                '<'
-              );
+              // // then move to seat
+              // let seatDivID = `#seat-${passenger.row}${passenger.seatLetter}`;
+              // let { x, y } = this.getDeltaXY(noFam, seatDivID);
+              // frameTimeline.to(
+              //   noFam,
+              //   {
+              //     x,
+              //     y,
+              //     delay: 0.2,
+              //     duration: 0.5,
+              //   },
+
+              // );
 
               seatFound = true;
             } else {
@@ -192,17 +259,6 @@ export class TimelineService {
           } else {
             console.log(`Passenger ${passengerID} not found`);
           }
-
-          frameTimeline.to(
-            `#family-${family.familyID}`,
-            {
-              borderColor: 'transparent',
-              font: 'transparent',
-              duration: 0.75,
-              // delay: 0.25,
-            },
-            '<'
-          );
         });
       } catch (error) {}
     }
