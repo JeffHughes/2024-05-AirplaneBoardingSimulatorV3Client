@@ -75,7 +75,7 @@ export class SimulationComponent implements OnInit {
         this.timelineService.getPassenger(passengerID);
       return this.rowStyle(passenger.row, alpha);
     } catch (error) {
-      console.log('Error: ', error);
+      // console.log('Error: ', error);
       return this.rowStyle(1, alpha);
     }
   }

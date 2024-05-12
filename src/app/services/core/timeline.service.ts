@@ -38,9 +38,9 @@ export class TimelineService {
 
   async createTimelineFromJson() {
     const response = await fetch(
-      //'../../../assets/test-delme/frames-05-06-4PM.json'
-      // 'http://localhost:7048/api/Function1'
-      'https://202405-boardingsimulationv3api.azurewebsites.net/api/Function1'
+      '../../../assets/test-delme/frames-05-06-4PM.json'
+      //'http://localhost:7048/api/Function1'
+      //'https://202405-boardingsimulationv3api.azurewebsites.net/api/Function1'
     );
     const calculations = await response.json();
 
@@ -55,7 +55,10 @@ export class TimelineService {
         calculations.animationFrames.forEach((frame: any) => {
           this.animateMovements(frame);
         });
-        GSDevTools.create(); //TODO: kill logo and timeline dropdown
+        GSDevTools.create({}); //TODO: kill logo and timeline dropdown
+
+        // gsap.set(this.timeline, { timeScale: 2 });
+
         clearInterval(interval);
 
         setInterval(() => {
@@ -179,6 +182,50 @@ export class TimelineService {
           },
           '<'
         );
+
+        const family = this.getPassengersInFamily(familyID);
+        family.familyMembers.forEach((passenger: any) => {
+          const passengerID = passenger.passengerID;
+          frameTimeline.to(
+            `#Passenger-moving-w-family-${passengerID}`,
+            {
+              opacity: 0,
+              duration: 0.5,
+              //delay: 1,
+            },
+            '<'
+          );
+        }); // familyMember
+      }); // familiesAreSeated
+    }
+
+    if (frame.bottleneckStart) {
+      frame.bottleneckStart.forEach((divID: any) => {
+        console.log(
+          `Bottleneck start ${divID} ${frame.timeSeconds} ${frame.durationSeconds}`
+        );
+        frameTimeline.to(
+          `#${divID}`,
+          {
+            opacity: 1,
+            duration: 1,
+          },
+          '<'
+        );
+      });
+    }
+
+    if (frame.bottleneckEnd) {
+      frame.bottleneckEnd.forEach((divID: any) => {
+        console.log(`Bottleneck end ${divID}  ${frame.timeSeconds} `);
+        frameTimeline.to(
+          `#${divID}`,
+          {
+            opacity: 0.2,
+            duration: 1,
+          },
+          '<'
+        );
       });
     }
 
@@ -233,7 +280,7 @@ export class TimelineService {
                 x: rowX.x,
                 opacity: 0.25,
                 delay: 0.2,
-                duration: rowX.x / (80 * this.timeline.timeScale()),
+                duration: 0.5, //rowX.x / (80 * this.timeline.timeScale()),
               });
 
               // then move to seat
@@ -263,44 +310,6 @@ export class TimelineService {
       } catch (error) {}
     }
 
-    if (frame.bottleneckStart) {
-      frame.bottleneckStart.forEach((divID: any) => {
-        console.log(`Bottleneck start ${divID}`);
-        frameTimeline
-          .to(
-            `#${divID}`,
-            {
-              opacity: 1,
-              duration: 0.5,
-            },
-            '<'
-          )
-          .to(
-            `#${divID}`,
-            {
-              opacity: 0.2,
-              duration: 0.5,
-              delay: 3, //THIS SI A HACK NEEDS DEBUGGING !!!!!
-            },
-            '<'
-          );
-      });
-    }
-
-    if (frame.bottleneckEnd) {
-      frame.bottleneckEnd.forEach((divID: any) => {
-        console.log(`Bottleneck end ${divID}`);
-        frameTimeline.to(
-          `#${divID}`,
-          {
-            opacity: 0.2,
-            duration: 0.5,
-          },
-          '<'
-        );
-      });
-    }
-
     // if (frame.message)
     //     console.log(`Frame ${frame.frameNumber}: ${frame.message}`);
     // if (frame.frameNumber % 100 == 0)
@@ -310,6 +319,16 @@ export class TimelineService {
 
     // console.log(`Frame ${frame.frameNumber}: ${frame.timeSeconds} seconds`);
     this.timeline.add(frameTimeline, frame.timeSeconds); // Add this frame's timeline to the main timeline
+  }
+
+  getPassengersInFamily(familyID: any) {
+    const families = this.config.families();
+    for (let i = 0; i < families.length; i++) {
+      const family = families[i];
+      if (family.familyID === familyID) {
+        return family;
+      }
+    }
   }
 
   getPassenger(passengerID: number) {

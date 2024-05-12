@@ -117,3 +117,13 @@ svg {
 .fil0 {
   fill: none;
 }
+
+ /* Hiding the logo */
+  .gsap-dev-tools-logo {
+    display: none !important;
+  }
+
+  /* Hiding the timeline selector if it has a specific class */
+  .gsap-timeline-selector {
+    display: none !important;
+  }
