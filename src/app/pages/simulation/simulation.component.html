@@ -136,7 +136,7 @@
             display: flex;
             height: 80px;
 
-            opacity: .2;
+            opacity: 0.2;
 
             align-items: center;
             justify-content: center;
@@ -330,9 +330,57 @@
 
     font-size: 12px;
   "
+  (mouseenter)="onMouseEnter(passenger.id)"
+  (mouseleave)="onMouseLeave(passenger.id)"
+  (click)="onClick(passenger.id)"
   [ngStyle]="rowPassengerStyle(passenger.id, 0.5)"
 >
-  {{ passenger.id }}
+  <div style="position: relative">
+    {{ passenger.id }}
+
+    <div
+      style="
+        position: absolute;
+        background-color: white;
+        border: 1px solid black;
+        border-radius: 2px;
+        display: none;
+        z-index: 1000;
+      "
+      [id]="'Passenger-moving-independently-' + passenger.id + '-info'"
+    >
+      <table>
+        <tr>
+          <td style="text-align: right">Passenger ID</td>
+          <td>{{ passenger.id }}</td>
+        </tr>
+
+        <tr>
+          <td style="text-align: right">FamilyID</td>
+          <td>{{ getPassengerAndFamily(passenger.id)?.family?.familyID }}</td>
+        </tr>
+        <tr>
+          <td style="white-space: nowrap">Boarding Group</td>
+          <td>{{ getBoardingGroup(passenger.id) }}</td>
+        </tr>
+
+        <tr>
+          <td style="text-align: right">Seat</td>
+          <td>
+            {{ getPassengerAndFamily(passenger.id)?.passenger?.row
+            }}{{ getPassengerAndFamily(passenger.id)?.passenger?.seatLetter }}
+          </td>
+        </tr>
+
+        <tr *ngIf="getPassengerAndFamily(passenger.id)?.passenger?.backTracks">
+          <td style="text-align: right">Backtracked</td>
+          <td>
+            {{ getPassengerAndFamily(passenger.id)?.passenger?.backTracks }}
+          </td>
+        </tr>
+      </table>
+    </div>
+  </div>
 </div>
 
 } @for (family of config.families() ; track $index) {
@@ -385,10 +433,54 @@
       font-size: 12px;
 
       will-change: left, top;
+
+      cursor: pointer;
     "
     [ngStyle]="getStyle(family.boardingOrder)"
+    (mouseenter)="onMouseEnter(passenger.passengerID)"
+    (mouseleave)="onMouseLeave(passenger.passengerID)"
+    (click)="onClick(passenger.passengerID)"
   >
-    {{ passenger.passengerID }}
+    <div style="position: relative">
+      {{ passenger.passengerID }}
+      <div
+        style="
+          position: absolute;
+          background-color: white;
+          border: 1px solid black;
+          border-radius: 2px;
+          display: none;
+          z-index: 1000;
+        "
+        [id]="'Passenger-moving-w-family-' + passenger.passengerID + '-info2'"
+      >
+        <table>
+          <tr>
+            <td style="text-align: right">Passenger ID</td>
+            <td>{{ passenger.passengerID }}</td>
+          </tr>
+
+          <tr>
+            <td style="text-align: right">FamilyID</td>
+            <td>{{ family.familyID }}</td>
+          </tr>
+          <tr>
+            <td style="white-space: nowrap">Boarding Group</td>
+            <td>{{ getBoardingGroup(passenger.passengerID) }}</td>
+          </tr>
+
+          <tr>
+            <td style="text-align: right">Seat</td>
+            <td>{{ passenger.row }}{{ passenger.seatLetter }}</td>
+          </tr>
+
+          <tr *ngIf="passenger.backTracks">
+            <td style="text-align: right">Backtracked</td>
+            <td>{{ passenger.backTracks }}</td>
+          </tr>
+        </table>
+      </div>
+    </div>
   </div>
 
   }

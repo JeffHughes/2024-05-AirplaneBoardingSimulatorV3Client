@@ -105,4 +105,54 @@ export class SimulationComponent implements OnInit {
     // Arrays are zero-indexed, so subtract 1 to match the input with array indices
     return colors[index - 1];
   }
+
+  getPassengerAndFamily(passengerID: number): any {
+    let { passenger, family } = this.timelineService.getPassenger(passengerID);
+    return { passenger, family };
+  }
+
+  getBoardingGroup(passengerID: number): any {
+    let family = this.getPassengerAndFamily(passengerID)?.family;
+    return this.boardingLetter(family?.boardingGroup) + family?.boardingOrder;
+  }
+
+  getInfoCard(passengerID: number): any {
+    return [
+      document.querySelector(
+        `#Passenger-moving-independently-${passengerID}-info`
+      ),
+      document.querySelector(`#Passenger-moving-w-family-${passengerID}-info2`),
+    ];
+  }
+
+  onMouseEnter(passengerID: number) {
+    //console.log('onMouseEnter on passenger: ', passengerID);
+    this.showInfoCard(passengerID);
+  }
+
+  showInfoCard(passengerID: number) {
+    const infoCard = this.getInfoCard(passengerID);
+
+    infoCard.forEach((card: any) => {
+      card!.style.display = 'block';
+    });
+  }
+
+  onMouseLeave(passengerID: number) {
+    // console.log('onMouseLeave passenger: ', passengerID);
+    this.hideInfoCard(passengerID);
+  }
+
+  private hideInfoCard(passengerID: number) {
+    const infoCard = this.getInfoCard(passengerID);
+
+    infoCard.forEach((card: any) => {
+      card!.style.display = 'none';
+    });
+  }
+
+  onClick(passengerID: number) {
+    // console.log('click passenger: ', passengerID);
+    this.showInfoCard(passengerID);
+  }
 }

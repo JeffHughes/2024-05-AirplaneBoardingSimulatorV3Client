@@ -39,7 +39,7 @@ export class TimelineService {
   async createTimelineFromJson() {
     const response = await fetch(
       '../../../assets/test-delme/frames-05-06-4PM.json'
-      //'http://localhost:7048/api/Function1'
+      //'http://localhost:7048/api/MainFunction'
       //'https://202405-boardingsimulationv3api.azurewebsites.net/api/Function1'
     );
     const calculations = await response.json();
@@ -112,62 +112,63 @@ export class TimelineService {
     });
 
     let staggerDelay = 1;
-    Object.entries(frame.familyLocationMovements).forEach(
-      ([familyID, locationID]) => {
-        if (this.isolateFamily && +familyID != this.isolateFamily) return;
+    if (frame.familyLocationMovements)
+      Object.entries(frame.familyLocationMovements).forEach(
+        ([familyID, locationID]) => {
+          if (this.isolateFamily && +familyID != this.isolateFamily) return;
 
-        const source = `#family-${familyID}`;
+          const source = `#family-${familyID}`;
 
-        //get lane for boarding group for family
-        const family = this.config
-          .families()
-          .find((f: any) => f.familyID == familyID);
+          //get lane for boarding group for family
+          const family = this.config
+            .families()
+            .find((f: any) => f.familyID == familyID);
 
-        let lane = family.boardingGroup % 2 == 0 ? 2 : 1;
+          let lane = family.boardingGroup % 2 == 0 ? 2 : 1;
 
-        if (locationID == 'Walkway-1') {
-          this.timeline.to(
-            source,
-            {
-              motionPath: {
-                path: '#motionPath' + lane,
-                align: '#motionPath' + lane,
-                // autoRotate: true,
-                alignOrigin: [0.5, 0.5],
+          if (locationID == 'Walkway-1') {
+            this.timeline.to(
+              source,
+              {
+                motionPath: {
+                  path: '#motionPath' + lane,
+                  align: '#motionPath' + lane,
+                  // autoRotate: true,
+                  alignOrigin: [0.5, 0.5],
+                },
+                duration: 1,
               },
-              duration: 1,
-            },
-            '<'
-          );
-        } else if (locationID == 'Cabin-12') {
-          this.timeline.to(
-            source,
-            {
-              motionPath: {
-                path: '#motionPath3',
-                align: '#motionPath3',
-                // autoRotate: true,
-                alignOrigin: [0.5, 0.5],
+              '<'
+            );
+          } else if (locationID == 'Cabin-12') {
+            this.timeline.to(
+              source,
+              {
+                motionPath: {
+                  path: '#motionPath3',
+                  align: '#motionPath3',
+                  // autoRotate: true,
+                  alignOrigin: [0.5, 0.5],
+                },
+                duration: 1,
               },
-              duration: 1,
-            },
-            '<'
-          );
-        } else {
-          let { x, y } = this.getDeltaXY(
-            `#family-${familyID}`,
-            `#${locationID}`
-          );
+              '<'
+            );
+          } else {
+            let { x, y } = this.getDeltaXY(
+              `#family-${familyID}`,
+              `#${locationID}`
+            );
 
-          // Animate the source to move to the target
-          this.timeline.to(
-            source,
-            { x, y, opacity: 1, delay: 0.001 * staggerDelay++, duration: 1 },
-            '<'
-          );
+            // Animate the source to move to the target
+            this.timeline.to(
+              source,
+              { x, y, opacity: 1, delay: 0.001 * staggerDelay++, duration: 1 },
+              '<'
+            );
+          }
         }
-      }
-    );
+      );
 
     if (frame.familiesAreSeated) {
       frame.familiesAreSeated.forEach((familyID: any) => {
@@ -201,9 +202,9 @@ export class TimelineService {
 
     if (frame.bottleneckStart) {
       frame.bottleneckStart.forEach((divID: any) => {
-        console.log(
-          `Bottleneck start ${divID} ${frame.timeSeconds} ${frame.durationSeconds}`
-        );
+        // console.log(
+        //   `Bottleneck start ${divID} ${frame.timeSeconds} ${frame.durationSeconds}`
+        // );
         frameTimeline.to(
           `#${divID}`,
           {
@@ -217,7 +218,7 @@ export class TimelineService {
 
     if (frame.bottleneckEnd) {
       frame.bottleneckEnd.forEach((divID: any) => {
-        console.log(`Bottleneck end ${divID}  ${frame.timeSeconds} `);
+        // console.log(`Bottleneck end ${divID}  ${frame.timeSeconds} `);
         frameTimeline.to(
           `#${divID}`,
           {
@@ -234,7 +235,7 @@ export class TimelineService {
         frame.passengerIDsToSeat.forEach((passengerID: any) => {
           if (this.previouslySeatedIDs.includes(passengerID)) {
             console.log('passenger already seated ' + passengerID);
-            debugger;
+            // debugger;
             return;
           }
 
@@ -272,6 +273,17 @@ export class TimelineService {
               xy.delay = 0.1;
 
               frameTimeline.to(noFam, xy, '<');
+
+              if (passenger.backTracks < -2) { 
+                // set bg color to firebrick
+                frameTimeline.set(
+                  noFam,
+                  {
+                    backgroundColor: 'firebrick',
+                  },
+                  '<'
+                );
+              }
 
               // first, move to row of seat
               let rowDivID = `#row-${passenger.row}`;
